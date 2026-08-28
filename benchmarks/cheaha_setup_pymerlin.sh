@@ -34,7 +34,7 @@ if ! command -v module >/dev/null 2>&1; then
 fi
 
 cd "${repository_root}"
-module reset
+# The Conda module lives in a personal module tree inherited through MODULEPATH.
 module load "${conda_module}"
 if ! command -v conda >/dev/null 2>&1; then
     printf 'Conda is unavailable after loading module: %s\n' \

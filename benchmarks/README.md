@@ -51,10 +51,12 @@ The workflow uses the user-observed Cheaha command
 list that exact module name. Verify it directly on Cheaha before setup:
 
 ```bash
-module reset
 module spider minforge
 module load minforge/conda
 ```
+
+The module is provided through a personal module tree. Preserve the submitting
+shell's `MODULEPATH`; the setup and benchmark scripts do not call `module reset`.
 
 Do not run `conda init` on Cheaha. The setup and benchmark scripts source the
 module-managed Conda activation script directly.
