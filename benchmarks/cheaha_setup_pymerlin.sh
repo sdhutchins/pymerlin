@@ -17,15 +17,23 @@
 
 set -euo pipefail
 
-script_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly script_directory
-repository_root="$(cd "${script_directory}/.." && pwd)"
-readonly repository_root
 readonly conda_module="${PYMERLIN_CONDA_MODULE:-miniforge/conda}"
-readonly conda_environment_prefix="${PYMERLIN_CONDA_ENV_PREFIX:-${repository_root}/.conda/pymerlin}"
 
 if [[ -z "${SLURM_JOB_ID:-}" ]]; then
     printf '%s\n' "Environment setup must run inside a Slurm allocation." >&2
+    exit 2
+fi
+if [[ -z "${SLURM_SUBMIT_DIR:-}" ]]; then
+    printf '%s\n' "SLURM_SUBMIT_DIR is unavailable." >&2
+    exit 2
+fi
+
+readonly repository_root="${SLURM_SUBMIT_DIR}"
+readonly conda_environment_prefix="${PYMERLIN_CONDA_ENV_PREFIX:-${repository_root}/.conda/pymerlin}"
+if [[ ! -f "${repository_root}/environment.yml" ]] \
+    || [[ ! -f "${repository_root}/pyproject.toml" ]]; then
+    printf 'Submit this job from the PyMerlin repository root: %s\n' \
+        "${repository_root}" >&2
     exit 2
 fi
 if ! command -v module >/dev/null 2>&1; then
@@ -51,12 +59,12 @@ source "${conda_base}/etc/profile.d/conda.sh"
 if [[ -x "${conda_environment_prefix}/bin/python" ]]; then
     conda env update \
         --prefix "${conda_environment_prefix}" \
-        --file environment.yml \
+        --file "${repository_root}/environment.yml" \
         --prune
 else
     conda env create \
         --prefix "${conda_environment_prefix}" \
-        --file environment.yml
+        --file "${repository_root}/environment.yml"
 fi
 
 conda activate "${conda_environment_prefix}"

@@ -70,6 +70,10 @@ cd pymerlin
 sbatch benchmarks/cheaha_setup_pymerlin.sh
 ```
 
+Both Slurm scripts use `SLURM_SUBMIT_DIR` as the repository root. Submit them
+from the cloned `pymerlin` root so Slurm's spooled script path is never treated
+as the checkout.
+
 After the setup job passes its focused tests, submit the diagnostic:
 
 ```bash

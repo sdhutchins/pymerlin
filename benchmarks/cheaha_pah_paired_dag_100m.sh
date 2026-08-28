@@ -19,17 +19,25 @@
 set -euo pipefail
 
 readonly state_limit=100000000
-script_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly script_directory
-repository_root="$(cd "${script_directory}/.." && pwd)"
-readonly repository_root
-readonly results_directory="${repository_root}/benchmarks/results"
-readonly final_result_path="${results_directory}/pah_paired_dag_100m.tsv"
 readonly conda_module="${PYMERLIN_CONDA_MODULE:-miniforge/conda}"
-readonly conda_environment_prefix="${PYMERLIN_CONDA_ENV_PREFIX:-${repository_root}/.conda/pymerlin}"
 
 if [[ -z "${SLURM_JOB_ID:-}" ]]; then
     printf '%s\n' "This benchmark must run inside a Slurm allocation." >&2
+    exit 2
+fi
+if [[ -z "${SLURM_SUBMIT_DIR:-}" ]]; then
+    printf '%s\n' "SLURM_SUBMIT_DIR is unavailable." >&2
+    exit 2
+fi
+
+readonly repository_root="${SLURM_SUBMIT_DIR}"
+readonly results_directory="${repository_root}/benchmarks/results"
+readonly final_result_path="${results_directory}/pah_paired_dag_100m.tsv"
+readonly conda_environment_prefix="${PYMERLIN_CONDA_ENV_PREFIX:-${repository_root}/.conda/pymerlin}"
+if [[ ! -f "${repository_root}/environment.yml" ]] \
+    || [[ ! -f "${repository_root}/pyproject.toml" ]]; then
+    printf 'Submit this job from the PyMerlin repository root: %s\n' \
+        "${repository_root}" >&2
     exit 2
 fi
 
