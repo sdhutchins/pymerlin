@@ -11,10 +11,12 @@ from time import perf_counter
 
 from pymerlin import (
     audit_paired_dag_transition,
+    build_founder_couple_quotient,
     build_founder_orientation_quotient,
     family_marker_likelihood_tree,
     format_paired_dag_transition_audit,
     load_merlin_inputs,
+    reduce_founder_couple_tree,
     reduce_founder_orientation_tree,
 )
 from pymerlin.map import haldane_recombination_fraction, map_distance_cm
@@ -57,13 +59,20 @@ def run_pah_paired_dag_benchmark(
             input_paths.freq,
         )
         family = dataset.families[0]
-        quotient = build_founder_orientation_quotient(family)
+        orientation_quotient = build_founder_orientation_quotient(family)
+        couple_quotient = build_founder_couple_quotient(
+            family,
+            orientation_quotient,
+        )
 
         marker_tree_started_at = perf_counter()
         reduced_trees = tuple(
-            reduce_founder_orientation_tree(
-                family_marker_likelihood_tree(family, marker),
-                quotient,
+            reduce_founder_couple_tree(
+                reduce_founder_orientation_tree(
+                    family_marker_likelihood_tree(family, marker),
+                    orientation_quotient,
+                ),
+                couple_quotient,
             )
             for marker in dataset.markers[:2]
         )
@@ -84,7 +93,8 @@ def run_pah_paired_dag_benchmark(
             reduced_trees[0],
             reduced_trees[1],
             theta,
-            founder_quotient=quotient,
+            founder_quotient=orientation_quotient,
+            founder_couple_quotient=couple_quotient,
             maximum_unique_subproblems=state_limit,
         )
         audit_seconds = perf_counter() - audit_started_at

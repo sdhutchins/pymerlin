@@ -88,13 +88,18 @@ export PYMERLIN_CONDA_MODULE="miniforge/conda"
 export PYMERLIN_CONDA_ENV_PREFIX="/path/to/pymerlin-conda"
 ```
 
-The Slurm request is based on the completed local 25-million-state benchmark:
+The Slurm request is based on completed Cheaha job `39871380` at the same
+100-million-state cap:
 
 - one CPU because the audit is serial;
-- 16 GB because the local process used 1.05 GiB and the larger frontier grew
-  nonlinearly;
-- 30 minutes because the local end-to-end run took 129 seconds; and
+- 4 GB because the job used 1.56 GiB, leaving more than a twofold margin;
+- 20 minutes because the job completed in 9 minutes 59 seconds, leaving a
+  twofold walltime margin; and
 - `express` because UAB documents a two-hour limit for that CPU partition.
+
+That baseline used one CPU at 94.32% CPU efficiency. It reached the state cap,
+so the completed Slurm job does not mean the structural audit completed its
+state space.
 
 The script writes a partial result during execution and atomically promotes it
 after success. A matching completed result is reused when its source signature

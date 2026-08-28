@@ -262,15 +262,48 @@ extrapolate a complete count directly from the 10-million or 25-million runs.
 These measurements are sufficient to size another bounded diagnostic, not a
 production likelihood evaluator.
 
-The Cheaha 100-million-state benchmark is prepared but has not been submitted.
-It requests one serial CPU, 16 GB of memory, 30 minutes, and the `express`
-partition. The wrapper refuses to run outside Slurm, promotes results
-atomically, and reuses only a completed result with a matching source
-signature. A separate review helper records final `sacct` and `seff` output
-after the job reaches a terminal state. A separate one-CPU setup job creates or
-updates `.conda/pymerlin` with the user-observed `miniforge/conda` module and
-installs the local repository checkout in editable mode. Neither job has been
-submitted.
+Cheaha job `39871380` completed the bounded 100-million-state benchmark at Git
+revision `bc526007ac8885b4d3527e4ce20e3e48ef270c9a`. It reached the cap rather
+than completing the structural state space. The baseline measured:
+
+- reduced bit 1,030 of 1,092 reached;
+- a maximum frontier of 4,342,800 unique states;
+- 113,385,847 explored nonzero transition arcs;
+- 536.675 seconds of audit time and 564.163 seconds total;
+- 94.32% CPU efficiency on one CPU; and
+- 1.56 GiB peak resident memory from the batch step.
+
+The measured resource request for another run at the same cap is one serial
+CPU, 4 GB of memory, 20 minutes, and the `express` partition. The memory and
+walltime each retain more than a twofold margin over job `39871380`. The
+wrapper refuses to run outside Slurm, promotes results atomically, and reuses
+only a completed result with a matching source signature.
+
+### Exact founder-couple quotient result
+
+The remaining exchangeable-founder-couple symmetry is now projected exactly
+through the founder-orientation quotient. The implementation fixes one
+complemented representative coordinate per eligible couple. Recombination
+still sums over the complete target orbit, so the hidden coordinate is not
+treated as an independent or zero-recombination bit.
+
+On an exhaustive bounded pedigree, every reduced marker likelihood matched its
+full inheritance-state likelihood. Every compound-quotient transition entry
+matched the sum over its full target states, and every transition row summed to
+one. These tests establish exactness for the tested topology. They do not by
+themselves establish tractability on PAH.
+
+The synthetic PAH fixture contains one eligible founder couple. A 10-state
+integration smoke test measured:
+
+- 1,091 compound-quotient bits, one fewer than the founder-orientation result;
+- 60 active bits;
+- 9 active founder-orientation context groups; and
+- 1 active founder-couple context group.
+
+The smoke test verifies the benchmark wiring only. The same 100-million-state
+cap must be rerun on Cheaha before attributing any frontier or runtime change
+to this quotient.
 
 ## Phase 2: Add MERLIN-style logging and message parity
 
@@ -508,9 +541,8 @@ shows that component peeling has constrained state growth.
 
 ## Immediate next action
 
-Run the prepared 100-million-state Cheaha diagnostic and inspect its completed
-`sacct` and `seff` records. Apply the remaining exact founder-couple symmetry
-before implementing production inference if its clean-room quotient reduces
-the active frontier. Only then choose between a Python reference evaluator and
-a compact compiled CPU kernel. Do not submit the separator-conditioning plan
-to Slurm.
+Rerun the 100-million-state Cheaha diagnostic with the exact founder-couple
+quotient and inspect its completed `sacct` and `seff` records. Compare it with
+job `39871380` using the same state cap. Only then decide whether the measured
+frontier change justifies a Python reference evaluator or a compact compiled
+CPU kernel. Do not submit the separator-conditioning plan to Slurm.

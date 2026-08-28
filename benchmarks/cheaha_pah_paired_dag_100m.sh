@@ -5,13 +5,13 @@
 #SBATCH --ntasks=1
 # The paired-DAG audit is serial, so additional allocated CPUs would be idle.
 #SBATCH --cpus-per-task=1
-# The 25-million-state run used 1.05 GiB. Sixteen GiB allows fourfold state
-# growth plus margin for the observed nonlinear frontier expansion.
-#SBATCH --mem=16G
-# The measured 25-million run took 129 seconds end to end. Thirty minutes
-# allows fourfold state growth plus a scheduler and hardware safety margin.
-#SBATCH --time=00:30:00
-# The documented two-hour express limit fits this bounded 30-minute CPU job.
+# Job 39871380 used 1.56 GiB at this 100-million-state cap. Four GiB retains
+# more than a twofold margin for allocator and node-to-node variation.
+#SBATCH --mem=4G
+# Job 39871380 completed in 9:59. Twenty minutes retains a twofold walltime
+# margin while keeping this bounded diagnostic on the express partition.
+#SBATCH --time=00:20:00
+# The documented two-hour express limit fits this bounded 20-minute CPU job.
 #SBATCH --partition=express
 #SBATCH --output=pymerlin-pah-dag-100m-%j.out
 #SBATCH --error=pymerlin-pah-dag-100m-%j.err
@@ -83,6 +83,7 @@ source_signature="$({
     sha256sum \
         benchmarks/pah_paired_dag_benchmark.py \
         environment.yml \
+        pymerlin/founder_couple_quotient.py \
         pymerlin/founder_orientation_quotient.py \
         pymerlin/inheritance_tree.py \
         pymerlin/likelihood.py \
