@@ -29,6 +29,20 @@ from .likelihood import (
     single_marker_likelihood,
 )
 from .models import Dataset, Family, Individual, Marker, Meiosis
+from .multipoint import (
+    FamilyStatePosterior,
+    FamilyTreePosteriors,
+    MultipointIbdResult,
+    PositionIbdResult,
+    PositionStatePosterior,
+    PosteriorInheritanceState,
+    TreePositionPosteriors,
+    multipoint_ibd,
+    multipoint_ibd_at_positions,
+    multipoint_state_posteriors_at_positions,
+    multipoint_tree_posteriors_at_positions,
+    two_marker_multipoint_ibd,
+)
 from .positions import AnalysisPosition, merlin_analysis_positions
 from .selection import partition_dataset_by_chromosome
 
@@ -38,6 +52,8 @@ __all__ = [
     "Dataset",
     "Family",
     "FamilyStateSpace",
+    "FamilyStatePosterior",
+    "FamilyTreePosteriors",
     "IbdResult",
     "Individual",
     "InheritanceState",
@@ -49,9 +65,14 @@ __all__ = [
     "MarkerTreeBudgetExceeded",
     "Meiosis",
     "MultipointEngine",
+    "MultipointIbdResult",
+    "PositionIbdResult",
+    "PositionStatePosterior",
+    "PosteriorInheritanceState",
     "SharedNode",
     "SplitNode",
     "TreeNode",
+    "TreePositionPosteriors",
     "ZeroNode",
     "executable_likelihood_backends",
     "executable_multipoint_engines",
@@ -62,7 +83,12 @@ __all__ = [
     "list_backend_status",
     "load_merlin_inputs",
     "merlin_analysis_positions",
+    "multipoint_ibd",
+    "multipoint_ibd_at_positions",
+    "multipoint_state_posteriors_at_positions",
+    "multipoint_tree_posteriors_at_positions",
     "partition_dataset_by_chromosome",
     "peeled_state_likelihood",
     "single_marker_likelihood",
+    "two_marker_multipoint_ibd",
 ]
