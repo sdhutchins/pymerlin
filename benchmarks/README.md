@@ -39,3 +39,79 @@ GAW14 is a strong simulated stress test because a published analysis ran
 MERLIN on 50 extended pedigrees across microsatellite and multiple SNP-density
 maps. Historical distribution required a data request. It remains blocked
 until current permission and redistribution terms are confirmed.
+
+## Cheaha paired-DAG scaling diagnostic
+
+`cheaha_pah_paired_dag_100m.sh` runs one bounded 100-million-state structural
+audit on the synthetic PAH-scale fixture. It does not calculate linkage
+statistics and does not submit itself.
+
+The workflow uses the user-observed Cheaha command
+`module load minforge/conda`. The public UAB module page does not currently
+list that exact module name. Verify it directly on Cheaha before setup:
+
+```bash
+module reset
+module spider minforge
+module load minforge/conda
+```
+
+Do not run `conda init` on Cheaha. The setup and benchmark scripts source the
+module-managed Conda activation script directly.
+
+Clone or update the repository from GitHub, then submit environment creation
+from the repository root. Environment creation runs as a compute job because
+UAB directs users not to create Conda environments on login nodes:
+
+```bash
+git clone https://github.com/sdhutchins/pymerlin.git
+cd pymerlin
+sbatch benchmarks/cheaha_setup_pymerlin.sh
+```
+
+After the setup job passes its focused tests, submit the diagnostic:
+
+```bash
+sbatch benchmarks/cheaha_pah_paired_dag_100m.sh
+```
+
+Both scripts use `.conda/pymerlin` by default. Override the observed module or
+environment prefix only when Cheaha reports a different live configuration:
+
+```bash
+export PYMERLIN_CONDA_MODULE="minforge/conda"
+export PYMERLIN_CONDA_ENV_PREFIX="/path/to/pymerlin-conda"
+```
+
+The Slurm request is based on the completed local 25-million-state benchmark:
+
+- one CPU because the audit is serial;
+- 16 GB because the local process used 1.05 GiB and the larger frontier grew
+  nonlinearly;
+- 30 minutes because the local end-to-end run took 129 seconds; and
+- `express` because UAB documents a two-hour limit for that CPU partition.
+
+The script writes a partial result during execution and atomically promotes it
+after success. A matching completed result is reused when its source signature
+matches. An interrupted job restarts from the beginning because the in-memory
+DAG frontier is not checkpointed. Partial files are retained for diagnosis.
+
+After the Slurm job reaches a terminal state, collect final accounting data:
+
+```bash
+benchmarks/review_cheaha_pah_paired_dag_job.sh SLURM_JOB_ID
+```
+
+The review helper writes both `sacct` and `seff` output under
+`benchmarks/results/`. Use completed jobs for resource-efficiency estimates.
+Use failed or cancelled jobs to diagnose the command or environment instead.
+
+UAB Research Computing documentation checked August 28, 2026:
+
+- [Cheaha hardware and partition limits](https://docs.rc.uab.edu/cheaha/hardware/)
+- [Pre-installed modules](https://docs.rc.uab.edu/cheaha/software/modules/)
+- [Self-installed software and Conda restrictions](https://docs.rc.uab.edu/cheaha/software/software/)
+- [Submitting Slurm jobs](https://docs.rc.uab.edu/cheaha/slurm/submitting_jobs/)
+- [Reviewing jobs with sacct and seff](https://docs.rc.uab.edu/cheaha/slurm/job_management/)
+- [Known issues](https://docs.rc.uab.edu/news/category/known-issues/)
+- [Maintenance notices](https://docs.rc.uab.edu/news/category/maintenance/)
