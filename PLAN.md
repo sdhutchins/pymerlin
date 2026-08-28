@@ -268,7 +268,7 @@ partition. The wrapper refuses to run outside Slurm, promotes results
 atomically, and reuses only a completed result with a matching source
 signature. A separate review helper records final `sacct` and `seff` output
 after the job reaches a terminal state. A separate one-CPU setup job creates or
-updates `.conda/pymerlin` with the user-observed `minforge/conda` module and
+updates `.conda/pymerlin` with the user-observed `miniforge/conda` module and
 installs the local repository checkout in editable mode. Neither job has been
 submitted.
 

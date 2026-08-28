@@ -25,7 +25,7 @@ repository_root="$(cd "${script_directory}/.." && pwd)"
 readonly repository_root
 readonly results_directory="${repository_root}/benchmarks/results"
 readonly final_result_path="${results_directory}/pah_paired_dag_100m.tsv"
-readonly conda_module="${PYMERLIN_CONDA_MODULE:-minforge/conda}"
+readonly conda_module="${PYMERLIN_CONDA_MODULE:-miniforge/conda}"
 readonly conda_environment_prefix="${PYMERLIN_CONDA_ENV_PREFIX:-${repository_root}/.conda/pymerlin}"
 
 if [[ -z "${SLURM_JOB_ID:-}" ]]; then

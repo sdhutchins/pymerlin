@@ -47,11 +47,11 @@ audit on the synthetic PAH-scale fixture. It does not calculate linkage
 statistics and does not submit itself.
 
 The workflow uses the user-observed Cheaha command
-`module load minforge/conda`. The public UAB module page does not currently
+`module load miniforge/conda`. The public UAB module page does not currently
 list that exact module name. Verify it directly on Cheaha before setup:
 
 ```bash
-module load minforge/conda
+module load miniforge/conda
 ```
 
 The module is provided through a personal module tree. Preserve the submitting
@@ -80,7 +80,7 @@ Both scripts use `.conda/pymerlin` by default. Override the observed module or
 environment prefix only when Cheaha reports a different live configuration:
 
 ```bash
-export PYMERLIN_CONDA_MODULE="minforge/conda"
+export PYMERLIN_CONDA_MODULE="miniforge/conda"
 export PYMERLIN_CONDA_ENV_PREFIX="/path/to/pymerlin-conda"
 ```
 

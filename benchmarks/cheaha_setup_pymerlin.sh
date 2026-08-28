@@ -21,7 +21,7 @@ script_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly script_directory
 repository_root="$(cd "${script_directory}/.." && pwd)"
 readonly repository_root
-readonly conda_module="${PYMERLIN_CONDA_MODULE:-minforge/conda}"
+readonly conda_module="${PYMERLIN_CONDA_MODULE:-miniforge/conda}"
 readonly conda_environment_prefix="${PYMERLIN_CONDA_ENV_PREFIX:-${repository_root}/.conda/pymerlin}"
 
 if [[ -z "${SLURM_JOB_ID:-}" ]]; then
