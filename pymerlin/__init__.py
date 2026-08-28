@@ -82,10 +82,17 @@ from .npl import (
     multipoint_npl_pairs,
     npl_pairs_score,
 )
+from .pedigree_reduction import (
+    AffectedPairSubpedigree,
+    PedigreeReductionReport,
+    analyze_pedigree_reduction,
+    format_pedigree_reduction_report,
+)
 from .positions import AnalysisPosition, merlin_analysis_positions
 from .selection import partition_dataset_by_chromosome
 
 __all__ = [
+    "AffectedPairSubpedigree",
     "AffectionNplPairsResult",
     "AnalysisPosition",
     "BackendInfo",
@@ -118,6 +125,7 @@ __all__ = [
     "MultipointEngine",
     "MultipointIbdResult",
     "NplPairsResult",
+    "PedigreeReductionReport",
     "PositionIbdResult",
     "PositionStatePosterior",
     "PosteriorInheritanceState",
@@ -126,6 +134,7 @@ __all__ = [
     "TreeNode",
     "TreePositionPosteriors",
     "ZeroNode",
+    "analyze_pedigree_reduction",
     "compare_singlepoint_ibd_to_merlin",
     "compare_singlepoint_ibd_to_merlin_executable",
     "detect_unlikely_genotypes",
@@ -143,6 +152,7 @@ __all__ = [
     "format_merlin_linear_kong_cox_console",
     "format_merlin_linear_kong_cox_table",
     "format_merlin_npl_zscores",
+    "format_pedigree_reduction_report",
     "inheritance_origins",
     "linear_kong_cox",
     "list_backend_status",
