@@ -1,0 +1,10 @@
+name: pymerlin
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.12,<3.14
+  - gmpy2>=2.2
+  - networkx>=3.4,<4
+  - numpy>=2.0
+  - pip
+  - pytest>=8
