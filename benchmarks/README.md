@@ -51,7 +51,6 @@ The workflow uses the user-observed Cheaha command
 list that exact module name. Verify it directly on Cheaha before setup:
 
 ```bash
-module spider minforge
 module load minforge/conda
 ```
 
