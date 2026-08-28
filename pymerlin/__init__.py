@@ -7,6 +7,11 @@ from .backends import (
     executable_multipoint_engines,
     list_backend_status,
 )
+from .compare import (
+    IbdMismatch,
+    compare_singlepoint_ibd_to_merlin,
+    compare_singlepoint_ibd_to_merlin_executable,
+)
 from .error_detection import (
     GenotypeError,
     detect_unlikely_genotypes,
@@ -95,6 +100,7 @@ __all__ = [
     "FamilyStatePosterior",
     "FamilyTreePosteriors",
     "GenotypeError",
+    "IbdMismatch",
     "IbdResult",
     "Individual",
     "InformationContentResult",
@@ -120,6 +126,8 @@ __all__ = [
     "TreeNode",
     "TreePositionPosteriors",
     "ZeroNode",
+    "compare_singlepoint_ibd_to_merlin",
+    "compare_singlepoint_ibd_to_merlin_executable",
     "detect_unlikely_genotypes",
     "executable_likelihood_backends",
     "executable_multipoint_engines",
