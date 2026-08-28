@@ -106,6 +106,11 @@ from .pedigree_reduction import (
 )
 from .positions import AnalysisPosition, merlin_analysis_positions
 from .selection import partition_dataset_by_chromosome
+from .transition_planner import (
+    SparseTransitionPlan,
+    format_sparse_transition_plan,
+    plan_sparse_transition,
+)
 
 __all__ = [
     "AffectedPairSubpedigree",
@@ -151,6 +156,7 @@ __all__ = [
     "PosteriorInheritanceState",
     "ReducedInheritanceMessage",
     "SharedNode",
+    "SparseTransitionPlan",
     "SplitNode",
     "TreeNode",
     "TreePositionPosteriors",
@@ -176,6 +182,7 @@ __all__ = [
     "format_merlin_linear_kong_cox_table",
     "format_merlin_npl_zscores",
     "format_pedigree_reduction_report",
+    "format_sparse_transition_plan",
     "founder_group_transition_probability",
     "inheritance_origins",
     "linear_kong_cox",
@@ -192,6 +199,7 @@ __all__ = [
     "npl_pairs_score",
     "partition_dataset_by_chromosome",
     "peeled_state_likelihood",
+    "plan_sparse_transition",
     "reduce_inheritance_tree",
     "reduce_founder_orientation_tree",
     "reference_state_pair_count",
