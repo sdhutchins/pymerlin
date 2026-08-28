@@ -105,6 +105,11 @@ from .npl import (
     multipoint_npl_pairs,
     npl_pairs_score,
 )
+from .paired_dag_audit import (
+    PairedDagTransitionAudit,
+    audit_paired_dag_transition,
+    format_paired_dag_transition_audit,
+)
 from .pedigree_reduction import (
     AffectedPairSubpedigree,
     PedigreeReductionReport,
@@ -159,6 +164,7 @@ __all__ = [
     "MultipointEngine",
     "MultipointIbdResult",
     "NplPairsResult",
+    "PairedDagTransitionAudit",
     "PedigreeReductionReport",
     "PositionIbdResult",
     "PositionStatePosterior",
@@ -172,6 +178,7 @@ __all__ = [
     "ZeroNode",
     "analyze_pedigree_reduction",
     "audit_merlin_transition",
+    "audit_paired_dag_transition",
     "build_founder_orientation_quotient",
     "compare_singlepoint_ibd_to_merlin",
     "compare_singlepoint_ibd_to_merlin_executable",
@@ -192,6 +199,7 @@ __all__ = [
     "format_merlin_linear_kong_cox_table",
     "format_merlin_npl_zscores",
     "format_merlin_transition_audit",
+    "format_paired_dag_transition_audit",
     "format_pedigree_reduction_report",
     "format_sparse_transition_plan",
     "founder_group_transition_probability",
