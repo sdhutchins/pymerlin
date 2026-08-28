@@ -15,9 +15,13 @@ from .inheritance_tree import (
     TreeNode,
     ZeroNode,
 )
+from .io import load_merlin_inputs
 from .models import Dataset, Family, Individual, Marker, Meiosis
+from .positions import AnalysisPosition, merlin_analysis_positions
+from .selection import partition_dataset_by_chromosome
 
 __all__ = [
+    "AnalysisPosition",
     "BackendInfo",
     "Dataset",
     "Family",
@@ -34,4 +38,7 @@ __all__ = [
     "executable_likelihood_backends",
     "executable_multipoint_engines",
     "list_backend_status",
+    "load_merlin_inputs",
+    "merlin_analysis_positions",
+    "partition_dataset_by_chromosome",
 ]
