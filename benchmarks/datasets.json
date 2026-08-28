@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "download_by_default": false,
+  "required_activation_records": [
+    "authoritative_source",
+    "access_terms",
+    "source_file_sha256",
+    "preprocessing_procedure",
+    "merlin_version_and_command",
+    "reference_output_sha256"
+  ],
+  "datasets": [
+    {
+      "id": "merlin_examples",
+      "name": "MERLIN distributed examples",
+      "status": "active",
+      "access": "bundled",
+      "data_type": "small_example_pedigrees",
+      "location": "examples",
+      "merlin_evidence": {
+        "kind": "distributed_with_merlin",
+        "description": "Input examples distributed with the reference MERLIN source tree."
+      },
+      "target_workloads": [
+        "single-marker likelihood",
+        "multipoint IBD",
+        "output compatibility",
+        "MPFR numerical accuracy"
+      ],
+      "activation_requirements": []
+    },
+    {
+      "id": "platinum_genomes_ceph1463",
+      "name": "Platinum Genomes CEPH pedigree 1463",
+      "status": "candidate",
+      "access": "mixed",
+      "data_type": "three_generation_sequenced_pedigree",
+      "paper": {
+        "title": "A reference data set of 5.4 million phased human variants validated by genetic inheritance from sequencing a three-generation 17-member pedigree",
+        "doi": "10.1101/gr.210500.116",
+        "year": 2017
+      },
+      "merlin_evidence": {
+        "kind": "methods_use",
+        "description": "The study combined filtered GATK3 SNV calls with MERLIN to calculate genome-wide inheritance vectors."
+      },
+      "accessions": [
+        {
+          "repository": "dbGaP",
+          "accession": "phs001224.v1.p1",
+          "scope": "17-member pedigree and study molecular data",
+          "url": "https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/study.cgi?study_id=phs001224.v1.p1"
+        },
+        {
+          "repository": "ENA",
+          "accession": "PRJEB3381",
+          "scope": "sequence data for six pedigree members",
+          "url": "https://www.ebi.ac.uk/ena/browser/view/PRJEB3381"
+        }
+      ],
+      "target_workloads": [
+        "inheritance-vector inference",
+        "multipoint IBD",
+        "crossover localization",
+        "real-data scaling"
+      ],
+      "activation_requirements": [
+        "Select a legally accessible subset that retains a useful pedigree structure.",
+        "Record exact source files, checksums, genome build, and marker filters.",
+        "Define a deterministic VCF-to-MERLIN conversion.",
+        "Generate reference output with a recorded MERLIN 1.1.2 command."
+      ]
+    },
+    {
+      "id": "gaw14_simulated_extended_pedigrees",
+      "name": "GAW14 simulated extended pedigrees",
+      "status": "blocked",
+      "access": "permission_required",
+      "data_type": "simulated_extended_pedigrees",
+      "paper": {
+        "title": "Linkage analysis of the GAW14 simulated dataset with microsatellite and single-nucleotide polymorphism markers in large pedigrees",
+        "doi": "10.1186/1471-2156-6-S1-S14",
+        "year": 2005
+      },
+      "merlin_evidence": {
+        "kind": "comparative_analysis",
+        "description": "The study used MERLIN for nonparametric linkage analysis of one replicate containing 50 extended pedigrees."
+      },
+      "published_scale": {
+        "pedigrees": 50,
+        "chromosome": "3",
+        "marker_maps": [
+          "microsatellite 7.5 cM",
+          "SNP 3 cM",
+          "SNP 1 cM",
+          "SNP 0.3 cM"
+        ]
+      },
+      "target_workloads": [
+        "extended-pedigree limits",
+        "marker-density scaling",
+        "parametric linkage",
+        "nonparametric linkage"
+      ],
+      "activation_requirements": [
+        "Obtain current written permission for reuse outside the workshop.",
+        "Confirm whether derived inputs and outputs may be redistributed.",
+        "Record authoritative source files and checksums."
+      ]
+    },
+    {
+      "id": "23andme_crossover_families",
+      "name": "23andMe crossover family cohort",
+      "status": "excluded",
+      "access": "private",
+      "data_type": "consumer_genetics_families",
+      "paper": {
+        "title": "Escape from crossover interference increases with maternal age",
+        "doi": "10.1038/ncomms7260",
+        "year": 2015
+      },
+      "merlin_evidence": {
+        "kind": "methods_use",
+        "description": "The study used MERLIN 1.1.2 during crossover inference in 4,209 families."
+      },
+      "published_scale": {
+        "families": 4209,
+        "meioses": 18302,
+        "sites": 515972
+      },
+      "target_workloads": [
+        "large-cohort crossover inference"
+      ],
+      "activation_requirements": [
+        "A public, consent-compatible release would be required before reconsideration."
+      ]
+    }
+  ]
+}
