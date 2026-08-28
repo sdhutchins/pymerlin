@@ -7,6 +7,14 @@ from .backends import (
     executable_multipoint_engines,
     list_backend_status,
 )
+from .inheritance_tree import (
+    InheritanceTree,
+    LeafNode,
+    SharedNode,
+    SplitNode,
+    TreeNode,
+    ZeroNode,
+)
 from .models import Dataset, Family, Individual, Marker, Meiosis
 
 __all__ = [
@@ -14,9 +22,15 @@ __all__ = [
     "Dataset",
     "Family",
     "Individual",
+    "InheritanceTree",
+    "LeafNode",
     "Marker",
     "Meiosis",
     "MultipointEngine",
+    "SharedNode",
+    "SplitNode",
+    "TreeNode",
+    "ZeroNode",
     "executable_likelihood_backends",
     "executable_multipoint_engines",
     "list_backend_status",
