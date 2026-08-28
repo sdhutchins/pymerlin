@@ -75,6 +75,13 @@ from .likelihood import (
     peeled_state_likelihood,
     single_marker_likelihood,
 )
+from .merlin_transition_audit import (
+    MarkerTreeInformation,
+    MerlinTransitionAudit,
+    audit_merlin_transition,
+    format_merlin_transition_audit,
+    marker_tree_information,
+)
 from .models import Dataset, Family, Individual, Marker, Meiosis
 from .multipoint import (
     FamilyStatePosterior,
@@ -146,7 +153,9 @@ __all__ = [
     "MarkerAssignmentSpace",
     "MarkerCoordinateMap",
     "MarkerTreeBudgetExceeded",
+    "MarkerTreeInformation",
     "Meiosis",
+    "MerlinTransitionAudit",
     "MultipointEngine",
     "MultipointIbdResult",
     "NplPairsResult",
@@ -162,6 +171,7 @@ __all__ = [
     "TreePositionPosteriors",
     "ZeroNode",
     "analyze_pedigree_reduction",
+    "audit_merlin_transition",
     "build_founder_orientation_quotient",
     "compare_singlepoint_ibd_to_merlin",
     "compare_singlepoint_ibd_to_merlin_executable",
@@ -181,6 +191,7 @@ __all__ = [
     "format_merlin_linear_kong_cox_console",
     "format_merlin_linear_kong_cox_table",
     "format_merlin_npl_zscores",
+    "format_merlin_transition_audit",
     "format_pedigree_reduction_report",
     "format_sparse_transition_plan",
     "founder_group_transition_probability",
@@ -189,6 +200,7 @@ __all__ = [
     "list_backend_status",
     "load_merlin_inputs",
     "marker_coordinate_map",
+    "marker_tree_information",
     "merlin_analysis_positions",
     "multipoint_ibd",
     "multipoint_ibd_at_positions",
