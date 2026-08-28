@@ -1,0 +1,12 @@
+.conda/
+.venv/
+*.egg-info/
+**/.DS_Store
+**/__pycache__/
+*.py[cod]
+benchmarks/results/
+executables/merlin-macos-arm64
+pymerlin-pah-dag-100m-*.err
+pymerlin-pah-dag-100m-*.out
+pymerlin-setup-*.err
+pymerlin-setup-*.out

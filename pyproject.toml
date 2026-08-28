@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pymerlin"
+version = "0.1.0"
+description = "Python reference implementation of selected MERLIN pedigree likelihood routines."
+requires-python = ">=3.10"
+dependencies = [
+    "networkx>=3.4,<4",
+    "numpy>=2.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "gmpy2>=2.2",
+    "pytest>=8",
+]
+
+[project.scripts]
+pymerlin = "pymerlin.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["pymerlin*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "pah_scale: synthetic-marker tests using the anonymized PAH pedigree topology",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.16.5",
+]
