@@ -26,6 +26,13 @@ from .error_detection import (
     detect_unlikely_genotypes,
     format_merlin_error_file,
 )
+from .founder_orientation_quotient import (
+    FounderOrientationGroup,
+    FounderOrientationQuotient,
+    build_founder_orientation_quotient,
+    founder_group_transition_probability,
+    reduce_founder_orientation_tree,
+)
 from .ibd import IbdResult, estimate_ibd, estimate_ibd_for_markers
 from .information import (
     FamilyInformationContentResult,
@@ -116,6 +123,8 @@ __all__ = [
     "FamilyStateSpace",
     "FamilyStatePosterior",
     "FamilyTreePosteriors",
+    "FounderOrientationGroup",
+    "FounderOrientationQuotient",
     "GenotypeError",
     "IbdMismatch",
     "IbdResult",
@@ -147,6 +156,7 @@ __all__ = [
     "TreePositionPosteriors",
     "ZeroNode",
     "analyze_pedigree_reduction",
+    "build_founder_orientation_quotient",
     "compare_singlepoint_ibd_to_merlin",
     "compare_singlepoint_ibd_to_merlin_executable",
     "detect_unlikely_genotypes",
@@ -166,6 +176,7 @@ __all__ = [
     "format_merlin_linear_kong_cox_table",
     "format_merlin_npl_zscores",
     "format_pedigree_reduction_report",
+    "founder_group_transition_probability",
     "inheritance_origins",
     "linear_kong_cox",
     "list_backend_status",
@@ -182,6 +193,7 @@ __all__ = [
     "partition_dataset_by_chromosome",
     "peeled_state_likelihood",
     "reduce_inheritance_tree",
+    "reduce_founder_orientation_tree",
     "reference_state_pair_count",
     "single_marker_likelihood",
     "two_marker_multipoint_ibd",
