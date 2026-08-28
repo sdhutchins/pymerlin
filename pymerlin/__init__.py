@@ -26,6 +26,13 @@ from .error_detection import (
     detect_unlikely_genotypes,
     format_merlin_error_file,
 )
+from .founder_couple_quotient import (
+    FounderCoupleQuotient,
+    FounderCoupleQuotientGroup,
+    build_founder_couple_quotient,
+    founder_couple_transition_probability,
+    reduce_founder_couple_tree,
+)
 from .founder_orientation_quotient import (
     FounderOrientationGroup,
     FounderOrientationQuotient,
@@ -140,6 +147,8 @@ __all__ = [
     "FamilyStatePosterior",
     "FamilyStateSpace",
     "FamilyTreePosteriors",
+    "FounderCoupleQuotient",
+    "FounderCoupleQuotientGroup",
     "FounderOrientationGroup",
     "FounderOrientationQuotient",
     "GenotypeError",
@@ -179,6 +188,7 @@ __all__ = [
     "analyze_pedigree_reduction",
     "audit_merlin_transition",
     "audit_paired_dag_transition",
+    "build_founder_couple_quotient",
     "build_founder_orientation_quotient",
     "compare_singlepoint_ibd_to_merlin",
     "compare_singlepoint_ibd_to_merlin_executable",
@@ -202,6 +212,7 @@ __all__ = [
     "format_paired_dag_transition_audit",
     "format_pedigree_reduction_report",
     "format_sparse_transition_plan",
+    "founder_couple_transition_probability",
     "founder_group_transition_probability",
     "inheritance_origins",
     "linear_kong_cox",
@@ -220,6 +231,7 @@ __all__ = [
     "partition_dataset_by_chromosome",
     "peeled_state_likelihood",
     "plan_sparse_transition",
+    "reduce_founder_couple_tree",
     "reduce_founder_orientation_tree",
     "reduce_inheritance_tree",
     "reference_state_pair_count",

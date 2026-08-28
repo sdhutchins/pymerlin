@@ -17,6 +17,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
+from .founder_couple_quotient import FounderCoupleQuotient
 from .founder_orientation_quotient import FounderOrientationQuotient
 from .inheritance_tree import (
     InheritanceTree,
@@ -41,6 +42,7 @@ class PairedDagTransitionAudit:
     active_bit_count: int
     recombination_fraction: float
     founder_context_group_count: int
+    founder_couple_context_group_count: int
     maximum_open_founder_contexts: int
     examined_unique_subproblem_count: int
     transition_arc_count: int
@@ -62,6 +64,7 @@ def audit_paired_dag_transition(
     recombination_fraction: float,
     *,
     founder_quotient: FounderOrientationQuotient | None = None,
+    founder_couple_quotient: FounderCoupleQuotient | None = None,
     maximum_unique_subproblems: int = 1_000_000,
 ) -> PairedDagTransitionAudit:
     """Count memoized node-pair states without evaluating likelihood values.
@@ -85,22 +88,28 @@ def audit_paired_dag_transition(
         maximum_unique_subproblems,
         "Maximum unique subproblems",
     )
-    if (
-        founder_quotient is not None
-        and founder_quotient.reduced_bit_count != current_tree.bit_count
-    ):
-        raise ValueError(
-            "Founder quotient and inheritance trees must use the same "
-            "reduced inheritance bits."
+    founder_interaction_groups, founder_couple_interaction_groups = (
+        _transition_interaction_groups(
+            founder_quotient,
+            founder_couple_quotient,
+            current_tree.bit_count,
         )
+    )
 
     active_bit_indices = _active_split_bit_indices(
         current_tree,
         next_emission_tree,
     )
-    context_intervals = _active_founder_context_intervals(
-        founder_quotient,
+    founder_context_intervals = _active_context_intervals(
+        founder_interaction_groups,
         active_bit_indices,
+    )
+    founder_couple_context_intervals = _active_context_intervals(
+        founder_couple_interaction_groups,
+        active_bit_indices,
+    )
+    context_intervals = (
+        founder_context_intervals + founder_couple_context_intervals
     )
     opening_groups_by_bit = _group_indices_by_boundary(
         context_intervals,
@@ -152,7 +161,8 @@ def audit_paired_dag_transition(
                     current_tree.bit_count,
                     len(active_bit_indices),
                     theta,
-                    len(context_intervals),
+                    len(founder_context_intervals),
+                    len(founder_couple_context_intervals),
                     maximum_open_context_count,
                     transition_arc_count,
                     maximum_frontier_state_count,
@@ -177,7 +187,8 @@ def audit_paired_dag_transition(
                     current_tree.bit_count,
                     len(active_bit_indices),
                     theta,
-                    len(context_intervals),
+                    len(founder_context_intervals),
+                    len(founder_couple_context_intervals),
                     maximum_open_context_count,
                     transition_arc_count,
                     maximum_frontier_state_count,
@@ -238,7 +249,8 @@ def audit_paired_dag_transition(
                             current_tree.bit_count,
                             len(active_bit_indices),
                             theta,
-                            len(context_intervals),
+                            len(founder_context_intervals),
+                            len(founder_couple_context_intervals),
                             maximum_open_context_count,
                             transition_arc_count,
                             max(
@@ -256,7 +268,10 @@ def audit_paired_dag_transition(
         bit_count=current_tree.bit_count,
         active_bit_count=len(active_bit_indices),
         recombination_fraction=theta,
-        founder_context_group_count=len(context_intervals),
+        founder_context_group_count=len(founder_context_intervals),
+        founder_couple_context_group_count=len(
+            founder_couple_context_intervals
+        ),
         maximum_open_founder_contexts=maximum_open_context_count,
         examined_unique_subproblem_count=examined_state_count,
         transition_arc_count=transition_arc_count,
@@ -278,6 +293,10 @@ def format_paired_dag_transition_audit(
             f"active_bits\t{audit.active_bit_count}",
             f"recombination_fraction\t{audit.recombination_fraction:.17g}",
             (f"founder_context_groups\t{audit.founder_context_group_count}"),
+            (
+                "founder_couple_context_groups\t"
+                f"{audit.founder_couple_context_group_count}"
+            ),
             (f"maximum_open_founder_contexts\t{audit.maximum_open_founder_contexts}"),
             (f"examined_unique_subproblems\t{audit.examined_unique_subproblem_count}"),
             f"transition_arcs\t{audit.transition_arc_count}",
@@ -329,19 +348,71 @@ def _tree_split_bit_indices(tree: InheritanceTree) -> frozenset[int]:
     return frozenset(active_indices)
 
 
-def _active_founder_context_intervals(
+def _transition_interaction_groups(
     founder_quotient: FounderOrientationQuotient | None,
+    founder_couple_quotient: FounderCoupleQuotient | None,
+    tree_bit_count: int,
+) -> tuple[tuple[tuple[int, ...], ...], tuple[tuple[int, ...], ...]]:
+    """Validate quotient composition and return both transition group types."""
+
+    if founder_couple_quotient is not None:
+        if founder_quotient is None:
+            raise ValueError(
+                "Founder-couple quotient requires a founder-orientation quotient."
+            )
+        if (
+            founder_couple_quotient.input_bit_count
+            != founder_quotient.reduced_bit_count
+        ):
+            raise ValueError("Founder quotients use incompatible coordinate counts.")
+        if founder_couple_quotient.reduced_bit_count != tree_bit_count:
+            raise ValueError(
+                "Founder-couple quotient and inheritance trees must use the "
+                "same reduced inheritance bits."
+            )
+        founder_groups = founder_couple_quotient.remap_interaction_groups(
+            tuple(
+                group.reduced_member_bit_indices
+                for group in founder_quotient.groups
+                if group.reduced_member_bit_indices
+            )
+        )
+        return (
+            founder_groups,
+            founder_couple_quotient.transition_interaction_groups,
+        )
+
+    if (
+        founder_quotient is not None
+        and founder_quotient.reduced_bit_count != tree_bit_count
+    ):
+        raise ValueError(
+            "Founder quotient and inheritance trees must use the same "
+            "reduced inheritance bits."
+        )
+    founder_groups = (
+        tuple(
+            group.reduced_member_bit_indices
+            for group in founder_quotient.groups
+            if group.reduced_member_bit_indices
+        )
+        if founder_quotient is not None
+        else ()
+    )
+    return founder_groups, ()
+
+
+def _active_context_intervals(
+    interaction_groups: tuple[tuple[int, ...], ...],
     active_bit_indices: frozenset[int],
 ) -> tuple[tuple[int, int], ...]:
-    """Return first and last active relative coordinates for each founder."""
+    """Return first and last active coordinates for each transition group."""
 
-    if founder_quotient is None:
-        return ()
     intervals = []
-    for group in founder_quotient.groups:
+    for interaction_group in interaction_groups:
         active_group_indices = tuple(
             bit_index
-            for bit_index in group.reduced_member_bit_indices
+            for bit_index in interaction_group
             if bit_index in active_bit_indices
         )
         if active_group_indices:
@@ -481,6 +552,7 @@ def _truncated_audit(
     active_bit_count: int,
     theta: float,
     founder_context_group_count: int,
+    founder_couple_context_group_count: int,
     maximum_open_founder_contexts: int,
     transition_arc_count: int,
     maximum_frontier_state_count: int,
@@ -494,6 +566,9 @@ def _truncated_audit(
         active_bit_count=active_bit_count,
         recombination_fraction=theta,
         founder_context_group_count=founder_context_group_count,
+        founder_couple_context_group_count=(
+            founder_couple_context_group_count
+        ),
         maximum_open_founder_contexts=maximum_open_founder_contexts,
         examined_unique_subproblem_count=maximum_unique_subproblems,
         transition_arc_count=transition_arc_count,
