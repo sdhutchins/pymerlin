@@ -7,6 +7,7 @@ from .backends import (
     executable_multipoint_engines,
     list_backend_status,
 )
+from .ibd import IbdResult, estimate_ibd, estimate_ibd_for_markers
 from .inheritance_tree import (
     InheritanceTree,
     LeafNode,
@@ -37,6 +38,7 @@ __all__ = [
     "Dataset",
     "Family",
     "FamilyStateSpace",
+    "IbdResult",
     "Individual",
     "InheritanceState",
     "InheritanceTree",
@@ -53,6 +55,8 @@ __all__ = [
     "ZeroNode",
     "executable_likelihood_backends",
     "executable_multipoint_engines",
+    "estimate_ibd",
+    "estimate_ibd_for_markers",
     "family_marker_likelihood_tree",
     "inheritance_origins",
     "list_backend_status",
