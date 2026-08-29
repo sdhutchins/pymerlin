@@ -124,7 +124,39 @@ The review helper writes both `sacct` and `seff` output under
 `benchmarks/results/`. Use completed jobs for resource-efficiency estimates.
 Use failed or cancelled jobs to diagnose the command or environment instead.
 
-UAB Research Computing documentation checked August 28, 2026:
+## Cheaha meiosis-ordering diagnostic
+
+`cheaha_pah_ordering.sh` compares the current informative topological order
+with individual-identifier and stable parent-before-child orders. Each order
+is an explicit coordinate permutation. Small-pedigree tests require every
+marker likelihood and the exact rational recombination kernel to remain
+unchanged after applying the corresponding bit permutation.
+
+The comparison is bounded independently at three levels:
+
+- 100,000 recursive nodes per marker tree;
+- 120 seconds per marker tree; and
+- one million paired-DAG states after founder-orientation reduction.
+
+A local PAH run built both marker trees under the current order in 19.1
+seconds. The identifier and stable parent-before-child alternatives each
+reached the time bound on the first marker. The Cheaha run is intended to
+confirm that stop decision on the target platform, not to run linkage output.
+
+From the repository root, submit and then review the job with:
+
+```bash
+sbatch benchmarks/cheaha_pah_ordering.sh
+benchmarks/review_cheaha_pah_ordering_job.sh SLURM_JOB_ID
+```
+
+The job requests one CPU because all candidate operations are serial. Four GB
+matches the measured bound used by the larger paired-DAG experiments. Ten
+minutes provides a broad margin over the 67-second bounded local smoke and
+still covers both 120-second fallback time limits. The `express` partition
+accommodates that bounded single-CPU request.
+
+UAB Research Computing documentation checked August 29, 2026:
 
 - [Cheaha hardware and partition limits](https://docs.rc.uab.edu/cheaha/hardware/)
 - [Pre-installed modules](https://docs.rc.uab.edu/cheaha/software/modules/)

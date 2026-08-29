@@ -390,15 +390,32 @@ locations:
 
 ### Traversal-order decision
 
-- Rerun the bounded PAH diagnostic after component peeling.
-- Compare identifier-derived, parent-before-child, and MERLIN-compatible
-  traversal paths using the same marker and node budget.
-- Record maximum open founder-origin frontier width and maximum pending
-  transmission count.
-- Keep the parent-before-child order only if it improves the complete peeled
-  algorithm or is required for exact MERLIN behavior.
-- Otherwise restore the faster order and keep the internal permutation
-  explicit and tested.
+The ordering audit now represents each candidate as an explicit permutation
+of the same meioses. Exhaustive small-pedigree tests matched every marker-tree
+likelihood after applying the bit permutation. Exact rational recombination
+probabilities also matched for every source-target inheritance-vector pair.
+
+On the local synthetic PAH interval, the current informative topological order
+built both marker trees in 19.056 seconds. It measured:
+
+- 159,576 and 133,040 unique full-coordinate marker-DAG nodes;
+- 122,313 and 104,315 unique founder-orientation DAG nodes;
+- 65 active full-coordinate bits; and
+- 60 active bits among 1,092 founder-orientation coordinates.
+
+The individual-identifier order reached its 120-second bound on the first
+marker. The stable parent-before-child order also reached the first-marker
+bound, with the periodic time check reporting 140.188 seconds. In the
+permanent bounded smoke, both alternatives exceeded 100,000 recursive nodes
+on the first marker. The current order completed both markers with at most
+24,471 recursive nodes. Neither alternative reached transition auditing, so
+neither can improve total PAH runtime under the current exact marker-tree
+builder.
+
+The current informative topological order remains the default. A reproducible
+Cheaha diagnostic applies 100,000-node and 120-second marker bounds before a
+one-million-state paired-DAG audit. It records bounded candidate failures
+instead of aborting the comparison.
 
 ### Remaining exact reductions
 
@@ -564,9 +581,8 @@ shows that component peeling has constrained state growth.
 
 ## Immediate next action
 
-Do not apply the founder-couple quotient to the PAH paired-DAG evaluator. The
-next exact performance investigation should compare inheritance-bit orderings
-using the same bounded PAH interval and state cap. An ordering is useful only
-if it reduces active marker-DAG nodes or the paired frontier without adding a
-latent state dimension. Do not submit the separator-conditioning plan to
-Slurm.
+Run the bounded ordering diagnostic once on Cheaha and inspect its completed
+`sacct` and `seff` records. Retain the current informative topological order
+unless the target-platform result contradicts the local stop decision. Do not
+apply the founder-couple quotient to the PAH paired-DAG evaluator, and do not
+submit the separator-conditioning plan to Slurm.
