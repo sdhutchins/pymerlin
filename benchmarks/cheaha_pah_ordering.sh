@@ -1,24 +1,26 @@
 #!/bin/bash
 
-#SBATCH --job-name=pymerlin-pah-dag-100m
+#SBATCH --job-name=pymerlin-pah-ordering
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-# The paired-DAG audit is serial, so additional allocated CPUs would be idle.
+# Each marker-tree build and paired-DAG audit is serial.
 #SBATCH --cpus-per-task=1
-# Job 39871380 used 1.56 GiB at this 100-million-state cap. Four GiB retains
-# more than a twofold margin for allocator and node-to-node variation.
+# The larger paired-DAG experiment used 3.07 GB. Four GB bounds this audit,
+# which also stops any candidate after 100,000 recursive marker nodes.
 #SBATCH --mem=4G
-# Job 39871380 completed in 9:59. Twenty minutes retains a twofold walltime
-# margin while keeping this bounded diagnostic on the express partition.
-#SBATCH --time=00:20:00
-# The documented two-hour express limit fits this bounded 20-minute CPU job.
+# The bounded local smoke took 67 seconds. Ten minutes also covers both
+# 120-second fallback time limits plus scheduler and node variation.
+#SBATCH --time=00:10:00
+# The documented two-hour express limit fits this bounded serial comparison.
 #SBATCH --partition=express
-#SBATCH --output=pymerlin-pah-dag-100m-%j.out
-#SBATCH --error=pymerlin-pah-dag-100m-%j.err
+#SBATCH --output=pymerlin-pah-ordering-%j.out
+#SBATCH --error=pymerlin-pah-ordering-%j.err
 
 set -euo pipefail
 
-readonly state_limit=100000000
+readonly state_limit=1000000
+readonly marker_node_limit=100000
+readonly marker_time_limit_seconds=120
 readonly conda_module="${PYMERLIN_CONDA_MODULE:-miniforge/conda}"
 
 if [[ -z "${SLURM_JOB_ID:-}" ]]; then
@@ -32,7 +34,7 @@ fi
 
 readonly repository_root="${SLURM_SUBMIT_DIR}"
 readonly results_directory="${repository_root}/benchmarks/results"
-readonly final_result_path="${results_directory}/pah_paired_dag_100m.tsv"
+readonly final_result_path="${results_directory}/pah_meiosis_ordering.tsv"
 readonly conda_environment_prefix="${PYMERLIN_CONDA_ENV_PREFIX:-${repository_root}/.conda/pymerlin}"
 if [[ ! -f "${repository_root}/environment.yml" ]] \
     || [[ ! -f "${repository_root}/pyproject.toml" ]]; then
@@ -81,13 +83,13 @@ fi
 mkdir -p "${results_directory}"
 source_signature="$({
     sha256sum \
-        benchmarks/pah_paired_dag_benchmark.py \
+        benchmarks/pah_ordering_benchmark.py \
         environment.yml \
         pymerlin/__init__.py \
-        pymerlin/founder_couple_quotient.py \
         pymerlin/founder_orientation_quotient.py \
         pymerlin/inheritance_tree.py \
         pymerlin/likelihood.py \
+        pymerlin/meiosis_ordering.py \
         pymerlin/paired_dag_audit.py \
         tests/pah_scale_fixture.py \
         tests/fixtures/pah_scale/genotyped_ids.txt \
@@ -116,16 +118,17 @@ printf 'benchmark_started_utc\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 printf 'git_revision\t%s\n' "${git_revision}"
 printf 'source_signature\t%s\n' "${source_signature}"
 
-# Limit implicit numerical libraries to the one CPU requested from Slurm.
 export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK}"
 export OPENBLAS_NUM_THREADS="${SLURM_CPUS_PER_TASK}"
 export MKL_NUM_THREADS="${SLURM_CPUS_PER_TASK}"
 export PYTHONHASHSEED=0
-export PYMERLIN_BENCHMARK_RESULT_PATH="${partial_result_path}"
-export PYMERLIN_BENCHMARK_SOURCE_SIGNATURE="${source_signature}"
-export PYMERLIN_PAIRED_DAG_STATE_LIMIT="${state_limit}"
+export PYMERLIN_ORDERING_RESULT_PATH="${partial_result_path}"
+export PYMERLIN_ORDERING_SOURCE_SIGNATURE="${source_signature}"
+export PYMERLIN_ORDERING_STATE_LIMIT="${state_limit}"
+export PYMERLIN_ORDERING_MARKER_NODE_LIMIT="${marker_node_limit}"
+export PYMERLIN_ORDERING_MARKER_TIME_LIMIT="${marker_time_limit_seconds}"
 
-python -m benchmarks.pah_paired_dag_benchmark
+python -m benchmarks.pah_ordering_benchmark
 mv "${partial_result_path}" "${final_result_path}"
 
 printf 'benchmark_finished_utc\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -133,5 +136,5 @@ printf 'benchmark_result\t%s\n' "${final_result_path}"
 while IFS= read -r result_line; do
     printf '%s\n' "${result_line}"
 done < "${final_result_path}"
-printf 'review_command\tbenchmarks/review_cheaha_pah_paired_dag_job.sh %s\n' \
+printf 'review_command\tbenchmarks/review_cheaha_pah_ordering_job.sh %s\n' \
     "${SLURM_JOB_ID}"

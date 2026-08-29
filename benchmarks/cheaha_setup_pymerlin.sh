@@ -71,6 +71,8 @@ conda activate "${conda_environment_prefix}"
 python -m pip install --no-deps --editable ".[test]"
 python -c "import gmpy2, networkx, numpy, pymerlin"
 python -m pytest \
+    tests/test_meiosis_ordering.py \
+    tests/test_pah_ordering_benchmark.py \
     tests/test_paired_dag_audit.py \
     tests/test_founder_orientation_quotient.py \
     tests/test_transition_planner.py \

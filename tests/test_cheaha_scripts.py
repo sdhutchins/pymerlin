@@ -12,6 +12,7 @@ REPOSITORY_ROOT = Path(__file__).parents[1]
 SLURM_SCRIPT_NAMES = (
     "cheaha_setup_pymerlin.sh",
     "cheaha_pah_paired_dag_100m.sh",
+    "cheaha_pah_ordering.sh",
 )
 
 
