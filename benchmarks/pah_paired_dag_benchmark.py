@@ -10,13 +10,14 @@ from tempfile import TemporaryDirectory
 from time import perf_counter
 
 from pymerlin import (
+    audit_founder_couple_key_effect,
     audit_paired_dag_transition,
     build_founder_couple_quotient,
     build_founder_orientation_quotient,
     family_marker_likelihood_tree,
+    format_founder_couple_key_audit,
     format_paired_dag_transition_audit,
     load_merlin_inputs,
-    reduce_founder_couple_tree,
     reduce_founder_orientation_tree,
 )
 from pymerlin.map import haldane_recombination_fraction, map_distance_cm
@@ -66,13 +67,10 @@ def run_pah_paired_dag_benchmark(
         )
 
         marker_tree_started_at = perf_counter()
-        reduced_trees = tuple(
-            reduce_founder_couple_tree(
-                reduce_founder_orientation_tree(
-                    family_marker_likelihood_tree(family, marker),
-                    orientation_quotient,
-                ),
-                couple_quotient,
+        orientation_trees = tuple(
+            reduce_founder_orientation_tree(
+                family_marker_likelihood_tree(family, marker),
+                orientation_quotient,
             )
             for marker in dataset.markers[:2]
         )
@@ -84,17 +82,24 @@ def run_pah_paired_dag_benchmark(
                 float(dataset.markers[1].position_cm),
             )
         )
+        key_audit_started_at = perf_counter()
+        founder_couple_key_audit = audit_founder_couple_key_effect(
+            orientation_trees[0],
+            orientation_trees[1],
+            theta,
+            couple_quotient,
+        )
+        key_audit_seconds = perf_counter() - key_audit_started_at
         logger.info(
             "Auditing at most %s unique paired-DAG subproblems.",
             f"{state_limit:,}",
         )
         audit_started_at = perf_counter()
         audit = audit_paired_dag_transition(
-            reduced_trees[0],
-            reduced_trees[1],
+            orientation_trees[0],
+            orientation_trees[1],
             theta,
             founder_quotient=orientation_quotient,
-            founder_couple_quotient=couple_quotient,
             maximum_unique_subproblems=state_limit,
         )
         audit_seconds = perf_counter() - audit_started_at
@@ -104,8 +109,12 @@ def run_pah_paired_dag_benchmark(
         source_signature=source_signature,
         state_limit=state_limit,
         marker_tree_seconds=marker_tree_seconds,
+        key_audit_seconds=key_audit_seconds,
         audit_seconds=audit_seconds,
         total_seconds=total_seconds,
+        founder_couple_key_audit_report=format_founder_couple_key_audit(
+            founder_couple_key_audit
+        ),
         audit_report=format_paired_dag_transition_audit(audit),
     )
     output_path.write_text(result_text, encoding="utf-8")
@@ -117,8 +126,10 @@ def _format_benchmark_result(
     source_signature: str,
     state_limit: int,
     marker_tree_seconds: float,
+    key_audit_seconds: float,
     audit_seconds: float,
     total_seconds: float,
+    founder_couple_key_audit_report: str,
     audit_report: str,
 ) -> str:
     """Return one deterministic-schema tabular benchmark artifact."""
@@ -133,10 +144,18 @@ def _format_benchmark_result(
         f"platform\t{platform.platform()}",
         f"requested_state_limit\t{state_limit}",
         f"marker_tree_seconds\t{marker_tree_seconds:.6f}",
+        f"founder_couple_key_audit_seconds\t{key_audit_seconds:.6f}",
         f"audit_seconds\t{audit_seconds:.6f}",
         f"total_seconds\t{total_seconds:.6f}",
     )
-    return "\n".join((*metadata_lines, audit_report, ""))
+    return "\n".join(
+        (
+            *metadata_lines,
+            founder_couple_key_audit_report,
+            audit_report,
+            "",
+        )
+    )
 
 
 def main() -> None:

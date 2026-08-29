@@ -101,6 +101,14 @@ That baseline used one CPU at 94.32% CPU efficiency. It reached the state cap,
 so the completed Slurm job does not mean the structural audit completed its
 state space.
 
+Founder-couple quotient job `39873064` used 3.07 GB and completed in 12 minutes
+44 seconds with 97.38% CPU efficiency. Its maximum frontier doubled because it
+added a persistent binary context without removing an active marker-DAG split.
+The benchmark therefore retains the founder-orientation state representation
+and reports the founder-couple key assessment separately. The exact quotient
+remains available for validation and for pedigrees where it removes active
+branching.
+
 The script writes a partial result during execution and atomically promotes it
 after success. A matching completed result is reused when its source signature
 matches. An interrupted job restarts from the beginning because the in-memory

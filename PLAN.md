@@ -293,17 +293,40 @@ matched the sum over its full target states, and every transition row summed to
 one. These tests establish exactness for the tested topology. They do not by
 themselves establish tractability on PAH.
 
-The synthetic PAH fixture contains one eligible founder couple. A 10-state
-integration smoke test measured:
+The synthetic PAH fixture contains one eligible founder couple. Cheaha job
+`39873064` tested the compound quotient at the same 100-million-state cap as
+the founder-orientation baseline. It measured:
 
 - 1,091 compound-quotient bits, one fewer than the founder-orientation result;
 - 60 active bits;
 - 9 active founder-orientation context groups; and
-- 1 active founder-couple context group.
+- 1 active founder-couple context group;
+- a maximum frontier of 8,685,600 states, exactly twice the baseline;
+- 126,771,693 transition arcs, 11.8% more than the baseline;
+- 711.960 seconds of audit time, 32.7% more than the baseline; and
+- 3.07 GB peak memory, compared with 1.56 GB for the baseline.
 
-The smoke test verifies the benchmark wiring only. The same 100-million-state
-cap must be rerun on Cheaha before attributing any frontier or runtime change
-to this quotient.
+The job completed successfully with 97.38% CPU efficiency on one CPU. It
+reached the state cap at reduced bit 1,009, which was 21 bits earlier than the
+baseline. The exact quotient is therefore a net loss in the current PAH
+paired-DAG representation.
+
+A direct key-structure audit explains the result. The quotient representative
+is orientation-reduced bit 0, but that coordinate is already shared rather
+than split in both marker DAGs. The quotient therefore removes zero active
+branches. Its target-orbit choice affects 10 active coordinates spanning
+reduced bits 93 through 1,045. Those alternatives must remain distinguishable
+between the first and last affected coordinates for an exact nontrivial
+recombination transition.
+
+A node-only canonicalization has no branch at the inactive representative to
+remove and cannot discard the distinct transition weights. Packing both
+orientations into a two-lane numeric value could reduce Python key overhead,
+but it would retain the doubled scalar work across almost the whole pedigree.
+The PAH benchmark therefore keeps the exact founder-couple implementation for
+validation but audits the faster founder-orientation representation. It also
+reports the structural founder-couple key assessment so this decision remains
+visible and testable.
 
 ## Phase 2: Add MERLIN-style logging and message parity
 
@@ -541,8 +564,9 @@ shows that component peeling has constrained state growth.
 
 ## Immediate next action
 
-Rerun the 100-million-state Cheaha diagnostic with the exact founder-couple
-quotient and inspect its completed `sacct` and `seff` records. Compare it with
-job `39871380` using the same state cap. Only then decide whether the measured
-frontier change justifies a Python reference evaluator or a compact compiled
-CPU kernel. Do not submit the separator-conditioning plan to Slurm.
+Do not apply the founder-couple quotient to the PAH paired-DAG evaluator. The
+next exact performance investigation should compare inheritance-bit orderings
+using the same bounded PAH interval and state cap. An ordering is useful only
+if it reduces active marker-DAG nodes or the paired frontier without adding a
+latent state dimension. Do not submit the separator-conditioning plan to
+Slurm.
