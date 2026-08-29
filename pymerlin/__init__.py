@@ -82,6 +82,11 @@ from .likelihood import (
     peeled_state_likelihood,
     single_marker_likelihood,
 )
+from .meiosis_ordering import (
+    MeiosisOrderingName,
+    OrderedFamilyMeioses,
+    order_family_meioses,
+)
 from .merlin_transition_audit import (
     MarkerTreeInformation,
     MerlinTransitionAudit,
@@ -175,10 +180,12 @@ __all__ = [
     "MarkerTreeBudgetExceeded",
     "MarkerTreeInformation",
     "Meiosis",
+    "MeiosisOrderingName",
     "MerlinTransitionAudit",
     "MultipointEngine",
     "MultipointIbdResult",
     "NplPairsResult",
+    "OrderedFamilyMeioses",
     "PairedDagTransitionAudit",
     "PedigreeReductionReport",
     "PositionIbdResult",
@@ -236,6 +243,7 @@ __all__ = [
     "multipoint_state_posteriors_at_positions",
     "multipoint_tree_posteriors_at_positions",
     "npl_pairs_score",
+    "order_family_meioses",
     "partition_dataset_by_chromosome",
     "peeled_state_likelihood",
     "plan_sparse_transition",
