@@ -113,8 +113,12 @@ from .npl import (
     npl_pairs_score,
 )
 from .paired_dag_audit import (
+    FounderCoupleKeyAudit,
+    FounderCoupleKeyGroupAudit,
     PairedDagTransitionAudit,
+    audit_founder_couple_key_effect,
     audit_paired_dag_transition,
+    format_founder_couple_key_audit,
     format_paired_dag_transition_audit,
 )
 from .pedigree_reduction import (
@@ -147,6 +151,8 @@ __all__ = [
     "FamilyStatePosterior",
     "FamilyStateSpace",
     "FamilyTreePosteriors",
+    "FounderCoupleKeyAudit",
+    "FounderCoupleKeyGroupAudit",
     "FounderCoupleQuotient",
     "FounderCoupleQuotientGroup",
     "FounderOrientationGroup",
@@ -186,6 +192,7 @@ __all__ = [
     "TreePositionPosteriors",
     "ZeroNode",
     "analyze_pedigree_reduction",
+    "audit_founder_couple_key_effect",
     "audit_merlin_transition",
     "audit_paired_dag_transition",
     "build_founder_couple_quotient",
@@ -200,6 +207,7 @@ __all__ = [
     "executable_multipoint_engines",
     "exponential_kong_cox",
     "family_marker_likelihood_tree",
+    "format_founder_couple_key_audit",
     "format_merlin_error_file",
     "format_merlin_information_console",
     "format_merlin_information_table",

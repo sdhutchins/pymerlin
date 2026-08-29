@@ -10,7 +10,9 @@ from pymerlin.founder_orientation_quotient import (
 )
 from pymerlin.inheritance_tree import InheritanceTree
 from pymerlin.paired_dag_audit import (
+    audit_founder_couple_key_effect,
     audit_paired_dag_transition,
+    format_founder_couple_key_audit,
     format_paired_dag_transition_audit,
 )
 
@@ -136,6 +138,62 @@ def test_compound_quotient_tracks_both_exact_transition_contexts() -> None:
     assert audit.founder_context_group_count == 1
     assert audit.founder_couple_context_group_count == 1
     assert audit.maximum_open_founder_contexts == 2
+
+
+def test_founder_couple_key_audit_detects_context_without_removed_split() -> None:
+    input_tree = InheritanceTree.from_dense(
+        (1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0)
+    )
+    quotient = FounderCoupleQuotient(
+        input_bit_count=3,
+        reduced_bit_count=2,
+        reduced_bit_index_by_input_bit=(None, 0, 1),
+        groups=(
+            FounderCoupleQuotientGroup(
+                founder_ids=("founder", "partner"),
+                representative_input_bit_index=0,
+                affected_input_bit_indices=(0, 1, 2),
+                input_bit_index_by_output_bit=(0, 1, 2),
+                xor_offset_by_output_bit=(1, 1, 1),
+            ),
+        ),
+    )
+
+    audit = audit_founder_couple_key_effect(
+        input_tree,
+        input_tree,
+        0.1,
+        quotient,
+    )
+
+    assert audit.input_bit_count == 3
+    assert audit.reduced_bit_count == 2
+    assert audit.removed_bit_count == 1
+    assert audit.input_active_bit_count == 2
+    assert audit.reduced_active_bit_count == 2
+    assert audit.removed_active_bit_count == 0
+    assert audit.persistent_context_group_count == 1
+    assert audit.maximum_open_context_count == 1
+    assert audit.maximum_context_lane_count == 2
+    assert not audit.groups[0].representative_is_active
+    assert audit.groups[0].active_reduced_bit_indices == (0, 1)
+    assert audit.groups[0].context_first_bit_index == 0
+    assert audit.groups[0].context_last_bit_index == 1
+
+    expected_report = (
+        "founder_couple_input_bits\t3\n"
+        "founder_couple_reduced_bits\t2\n"
+        "founder_couple_removed_bits\t1\n"
+        "founder_couple_input_active_bits\t2\n"
+        "founder_couple_reduced_active_bits\t2\n"
+        "founder_couple_removed_active_bits\t0\n"
+        "founder_couple_persistent_context_groups\t1\n"
+        "founder_couple_maximum_open_contexts\t1\n"
+        "founder_couple_maximum_context_lanes\t2\n"
+        "founder_couple_representatives_active\tfounder,partner:false\n"
+        "founder_couple_context_spans\tfounder,partner:0-1"
+    )
+    assert format_founder_couple_key_audit(audit) == expected_report
 
 
 def test_state_budget_returns_an_explicit_lower_bound() -> None:

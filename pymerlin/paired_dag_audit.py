@@ -17,7 +17,10 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-from .founder_couple_quotient import FounderCoupleQuotient
+from .founder_couple_quotient import (
+    FounderCoupleQuotient,
+    reduce_founder_couple_tree,
+)
 from .founder_orientation_quotient import FounderOrientationQuotient
 from .inheritance_tree import (
     InheritanceTree,
@@ -32,6 +35,41 @@ from .inheritance_tree import (
 
 _FounderContext = tuple[tuple[int, int], ...]
 _AuditState = tuple[int, int, _FounderContext]
+
+
+@dataclass(frozen=True)
+class FounderCoupleKeyGroupAudit:
+    """Structural key effect for one exact founder-couple quotient group."""
+
+    founder_ids: tuple[str, str]
+    representative_input_bit_index: int
+    representative_is_active: bool
+    active_input_bit_indices: tuple[int, ...]
+    active_reduced_bit_indices: tuple[int, ...]
+    context_first_bit_index: int | None
+    context_last_bit_index: int | None
+    requires_persistent_context: bool
+
+
+@dataclass(frozen=True)
+class FounderCoupleKeyAudit:
+    """Compare DAG branching removed by a quotient with context it adds."""
+
+    input_bit_count: int
+    reduced_bit_count: int
+    input_active_bit_count: int
+    reduced_active_bit_count: int
+    removed_active_bit_count: int
+    persistent_context_group_count: int
+    maximum_open_context_count: int
+    maximum_context_lane_count: int
+    groups: tuple[FounderCoupleKeyGroupAudit, ...]
+
+    @property
+    def removed_bit_count(self) -> int:
+        """Return the number of coordinates hidden by the quotient."""
+
+        return self.input_bit_count - self.reduced_bit_count
 
 
 @dataclass(frozen=True)
@@ -56,6 +94,77 @@ class PairedDagTransitionAudit:
         """Return whether the configured budget truncated the state count."""
 
         return not self.complete
+
+
+def audit_founder_couple_key_effect(
+    current_tree: InheritanceTree,
+    next_emission_tree: InheritanceTree,
+    recombination_fraction: float,
+    quotient: FounderCoupleQuotient,
+) -> FounderCoupleKeyAudit:
+    """Compare removed DAG splits with the exact orbit context requirement.
+
+    The input trees must already use founder-orientation coordinates. The
+    quotient trees are built internally so both active-bit sets come from the
+    actual compressed DAGs. A group needs persistent binary lanes only when a
+    nontrivial recombination transition couples at least two active reduced
+    coordinates. One active coordinate can be summed locally without adding a
+    value carried across bit levels.
+    """
+
+    _validate_tree_depths(current_tree, next_emission_tree)
+    theta = _validate_recombination_fraction(recombination_fraction)
+    if current_tree.bit_count != quotient.input_bit_count:
+        raise ValueError(
+            "Founder-couple quotient and input trees must use the same bits."
+        )
+
+    reduced_current_tree = reduce_founder_couple_tree(current_tree, quotient)
+    reduced_next_tree = reduce_founder_couple_tree(next_emission_tree, quotient)
+    input_active_indices = _active_split_bit_indices(
+        current_tree,
+        next_emission_tree,
+    )
+    reduced_active_indices = _active_split_bit_indices(
+        reduced_current_tree,
+        reduced_next_tree,
+    )
+
+    group_audits = tuple(
+        _audit_founder_couple_key_group(
+            group.founder_ids,
+            group.representative_input_bit_index,
+            group.affected_input_bit_indices,
+            input_active_indices,
+            reduced_active_indices,
+            quotient.reduced_bit_index_by_input_bit,
+            theta,
+        )
+        for group in quotient.groups
+    )
+    context_intervals = tuple(
+        (group.context_first_bit_index, group.context_last_bit_index)
+        for group in group_audits
+        if group.requires_persistent_context
+        and group.context_first_bit_index is not None
+        and group.context_last_bit_index is not None
+    )
+    maximum_open_context_count = _maximum_overlapping_intervals(
+        context_intervals
+    )
+
+    return FounderCoupleKeyAudit(
+        input_bit_count=current_tree.bit_count,
+        reduced_bit_count=quotient.reduced_bit_count,
+        input_active_bit_count=len(input_active_indices),
+        reduced_active_bit_count=len(reduced_active_indices),
+        removed_active_bit_count=len(input_active_indices)
+        - len(reduced_active_indices),
+        persistent_context_group_count=len(context_intervals),
+        maximum_open_context_count=maximum_open_context_count,
+        maximum_context_lane_count=2**maximum_open_context_count,
+        groups=group_audits,
+    )
 
 
 def audit_paired_dag_transition(
@@ -309,6 +418,62 @@ def format_paired_dag_transition_audit(
     )
 
 
+def format_founder_couple_key_audit(audit: FounderCoupleKeyAudit) -> str:
+    """Format a deterministic structural comparison for benchmark output."""
+
+    context_spans = ";".join(
+        (
+            f"{','.join(group.founder_ids)}:"
+            f"{group.context_first_bit_index}-{group.context_last_bit_index}"
+        )
+        for group in audit.groups
+        if group.requires_persistent_context
+    )
+    representative_activity = ";".join(
+        (
+            f"{','.join(group.founder_ids)}:"
+            f"{str(group.representative_is_active).lower()}"
+        )
+        for group in audit.groups
+    )
+    return "\n".join(
+        (
+            f"founder_couple_input_bits\t{audit.input_bit_count}",
+            f"founder_couple_reduced_bits\t{audit.reduced_bit_count}",
+            f"founder_couple_removed_bits\t{audit.removed_bit_count}",
+            (
+                "founder_couple_input_active_bits\t"
+                f"{audit.input_active_bit_count}"
+            ),
+            (
+                "founder_couple_reduced_active_bits\t"
+                f"{audit.reduced_active_bit_count}"
+            ),
+            (
+                "founder_couple_removed_active_bits\t"
+                f"{audit.removed_active_bit_count}"
+            ),
+            (
+                "founder_couple_persistent_context_groups\t"
+                f"{audit.persistent_context_group_count}"
+            ),
+            (
+                "founder_couple_maximum_open_contexts\t"
+                f"{audit.maximum_open_context_count}"
+            ),
+            (
+                "founder_couple_maximum_context_lanes\t"
+                f"{audit.maximum_context_lane_count}"
+            ),
+            (
+                "founder_couple_representatives_active\t"
+                f"{representative_activity or 'none'}"
+            ),
+            f"founder_couple_context_spans\t{context_spans or 'none'}",
+        )
+    )
+
+
 def _active_split_bit_indices(
     first_tree: InheritanceTree,
     second_tree: InheritanceTree,
@@ -346,6 +511,83 @@ def _tree_split_bit_indices(tree: InheritanceTree) -> frozenset[int]:
     with _inheritance_recursion_budget(tree.bit_count):
         visit(tree.root, 0)
     return frozenset(active_indices)
+
+
+def _audit_founder_couple_key_group(
+    founder_ids: tuple[str, str],
+    representative_input_bit_index: int,
+    affected_input_bit_indices: tuple[int, ...],
+    input_active_indices: frozenset[int],
+    reduced_active_indices: frozenset[int],
+    reduced_bit_index_by_input_bit: tuple[int | None, ...],
+    theta: float,
+) -> FounderCoupleKeyGroupAudit:
+    """Measure branching and context for one projected involution."""
+
+    active_input_bit_indices = tuple(
+        bit_index
+        for bit_index in affected_input_bit_indices
+        if bit_index in input_active_indices
+    )
+    active_reduced_bit_indices = tuple(
+        reduced_bit_index
+        for input_bit_index in affected_input_bit_indices
+        if (
+            reduced_bit_index := reduced_bit_index_by_input_bit[
+                input_bit_index
+            ]
+        )
+        is not None
+        and reduced_bit_index in reduced_active_indices
+    )
+    requires_persistent_context = (
+        0.0 < theta < 0.5 and len(active_reduced_bit_indices) >= 2
+    )
+    context_first_bit_index = (
+        min(active_reduced_bit_indices)
+        if requires_persistent_context
+        else None
+    )
+    context_last_bit_index = (
+        max(active_reduced_bit_indices)
+        if requires_persistent_context
+        else None
+    )
+    return FounderCoupleKeyGroupAudit(
+        founder_ids=founder_ids,
+        representative_input_bit_index=representative_input_bit_index,
+        representative_is_active=(
+            representative_input_bit_index in input_active_indices
+        ),
+        active_input_bit_indices=active_input_bit_indices,
+        active_reduced_bit_indices=active_reduced_bit_indices,
+        context_first_bit_index=context_first_bit_index,
+        context_last_bit_index=context_last_bit_index,
+        requires_persistent_context=requires_persistent_context,
+    )
+
+
+def _maximum_overlapping_intervals(
+    intervals: tuple[tuple[int, int], ...],
+) -> int:
+    """Return the largest number of inclusive intervals open at one bit."""
+
+    if not intervals:
+        return 0
+    boundaries = sorted(
+        {
+            bit_index
+            for first_bit_index, last_bit_index in intervals
+            for bit_index in (first_bit_index, last_bit_index)
+        }
+    )
+    return max(
+        sum(
+            first_bit_index <= boundary <= last_bit_index
+            for first_bit_index, last_bit_index in intervals
+        )
+        for boundary in boundaries
+    )
 
 
 def _transition_interaction_groups(
